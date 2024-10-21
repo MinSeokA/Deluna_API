@@ -9,8 +9,10 @@ export class Inventory {
     @Column()
     userId: string;
 
-    @Column()
-    item: string;
+    @Column({
+        default: []
+    })
+    item: Array<string>;
 
     @Column()
     amount: number;

@@ -22,7 +22,7 @@ export class Jobs {
     experience: number;
 
     @ManyToMany(() => Economy, (economy) => economy.shop)
-    economy: Economy[];
+    economy: Economy;
 
     @Column()
     isLimited: boolean;

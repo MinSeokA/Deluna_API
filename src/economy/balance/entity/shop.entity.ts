@@ -7,6 +7,12 @@ export class Shop {
     id: number;
 
     @Column()
+    guildId: string;
+    
+    @Column()
+    itemId: string;
+
+    @Column()
     name: string;
 
     @Column()
@@ -28,7 +34,7 @@ export class Shop {
     isLimited: boolean;
 
     @ManyToMany(() => Economy, (economy) => economy.shop)
-    economy: Economy[];
+    economy: Economy;
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
