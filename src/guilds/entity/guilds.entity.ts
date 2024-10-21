@@ -1,4 +1,7 @@
-import { Entity, Column, PrimaryGeneratedColumn } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
+import { System } from './system.entity';
+import { SystemLogs } from './logging.entity';
+import { LogChannels } from './channels.entity';
 
 @Entity('guilds')
 export class Guilds {
@@ -14,41 +17,18 @@ export class Guilds {
   @Column()
   ownerId: string;
 
-  // 개별 컬럼으로 변경
-  @Column({ default: false }) // welcome 설정
-  welcome: boolean;
+  // system.entity.ts와 연결
+  @OneToMany(() => System, (system) => system.guilds)
+  system: System;
 
-  @Column({ default: false }) // leave 설정
-  leave: boolean;
+  // logging.entity.ts와 연결
+  @OneToMany(() => SystemLogs, (systemLogs) => systemLogs.guilds)
+  systemLogs: SystemLogs;
 
-  @Column({ default: false }) // moderation ban 설정
-  moderationBan: boolean;
+  // channels.entity.ts와 연결
+  @OneToMany(() => LogChannels, (logChannels) => logChannels.guilds)
+  channels: LogChannels;
 
-  @Column({ default: false }) // moderation kick 설정
-  moderationKick: boolean;
-
-  @Column({ default: false }) // moderation warn 설정
-  moderationWarn: boolean;
-
-  @Column({ default: false }) // logging all 설정
-  loggingAll: boolean;
-
-  @Column({ default: false }) // logging warn 설정
-  loggingWarn: boolean;
-
-  @Column({ default: false }) // logging kick 설정
-  loggingKick: boolean;
-
-  @Column({ default: false }) // logging ban 설정
-  loggingBan: boolean;
-
-  // 채널 관련 개별 컬럼으로 변경
-  @Column({ nullable: true }) // welcome 채널
-  welcomeChannel: string | null;
-
-  @Column({ nullable: true }) // leave 채널
-  leaveChannel: string | null;
-
-  @Column({ nullable: true }) // logs 채널
-  logsChannel: string | null;
+  @Column({ default: () => 'CURRENT_TIMESTAMP' })
+  createdAt: Date;
 }

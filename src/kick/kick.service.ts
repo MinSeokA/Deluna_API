@@ -20,7 +20,7 @@ export class KickService {
 
         // 해당 길드가 킥 기능을 지원하는지 확인
         const guild = await this.guildsRepository.findOne({ where: { guildId } });
-        if (!guild || guild.moderationKick === false) {
+        if (!guild || guild.system.moderationKick === false) {
             return fail('길드에서 추방 기능을 사용하지 않습니다.');
         }
 

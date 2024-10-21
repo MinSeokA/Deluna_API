@@ -16,7 +16,7 @@ export class BanService {
 
   private async isModerationBanEnabled(guildId: string): Promise<boolean> {
     const guild = await this.guildsRepository.findOne({ where: { guildId } });
-    return guild?.moderationBan === true;
+    return guild?.system.moderationBan === true;
   }
 
   async blockUser(
@@ -60,17 +60,26 @@ export class BanService {
     return success('차단된 사용자 목록을 가져왔습니다.', blockedUsers);
   }
 
-  async unblockUser(moderatorId: string, userId: string, guildId: string): Promise<Result<void>> {
+  async unblockUser(userId: string, guildId: string): Promise<Result<void>> {
     if (!await this.isModerationBanEnabled(guildId)) {
       return fail('길드에서 차단 기능을 사용하지 않습니다.');
     }
 
-    const deleteResult = await this.blockedUsersRepository.delete({ moderatorId, userId, guildId });
+    const deleteResult = await this.blockedUsersRepository.delete({ userId, guildId });
 
     if (deleteResult.affected === 0) {
       return fail('차단 해제할 사용자가 없습니다.');
     }
 
     return success('사용자를 성공적으로 차단 해제했습니다.');
+  }
+
+  async unblockAllUsers(guildId: string): Promise<Result<void>> {
+    if (!await this.isModerationBanEnabled(guildId)) {
+      return fail('길드에서 차단 기능을 사용하지 않습니다.');
+    }
+
+    await this.blockedUsersRepository.delete({ guildId });
+    return success('모든 사용자를 성공적으로 차단 해제했습니다.');
   }
 }
