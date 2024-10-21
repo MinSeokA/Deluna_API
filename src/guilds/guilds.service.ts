@@ -59,13 +59,13 @@ export class GuildsService {
     // 기능 업데이트 로직
     switch (system) {
       case 'warn':
-        guild.moderationWarn = status; // 예: moderationWarn 필드가 있다고 가정
+        guild.system.moderationWarn = status; // 예: moderationWarn 필드가 있다고 가정
         break;
       case 'ban':
-        guild.moderationBan = status;
+        guild.system.moderationBan = status;
         break;
       case 'kick':
-        guild.moderationKick = status;
+        guild.system.moderationKick = status;
         break;
       default:
         return fail('잘못된 기능입니다.');
