@@ -8,7 +8,8 @@ import { GuildsModule } from './guilds/guilds.module';
 import { KickModule } from './kick/kick.module';
 import { WarnModule } from './warn/warn.module';
 import { PlaylistModule } from './music/playlist/playlist.module';
-import { EconomyModule } from './economy/economy.module';
+import { EconomyModule } from './economy/balance/economy.module';
+import { ShopModule } from './economy/shop/shop.module';
 
 @Module({
   imports: [
@@ -29,7 +30,7 @@ import { EconomyModule } from './economy/economy.module';
   WarnModule,
   PlaylistModule,
   EconomyModule,
-
+  ShopModule,
   ],
   controllers: [AppController],
   providers: [AppService],
