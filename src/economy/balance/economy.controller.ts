@@ -10,8 +10,8 @@ export class EconomyController {
     // 잔액 조회
     @Get('balance/:guildId/:userId')
     async getBalance(
+        @Param('guildId') guildId: string,
         @Param('userId') userId: string,
-        @Param('guildId') guildId: string
     ): Promise<any> {
         return this.economyService.getBalance(userId, guildId);
     }

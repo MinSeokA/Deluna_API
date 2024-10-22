@@ -6,8 +6,8 @@ export class System {
     @PrimaryGeneratedColumn()
     id: number;
 
-    @Column({ unique: true }) // guildId는 유일해야 하므로 추가
-    guildId: string;
+    @ManyToOne(() => Guilds, (guild) => guild.systems)
+    guilds: Guilds;
 
     @Column({ default: false }) // welcome 설정
     welcome: boolean;
@@ -29,7 +29,4 @@ export class System {
 
     @Column() // logging 설정
     logging: boolean;
-
-    @ManyToOne(() => Guilds, (guilds) => guilds.system)
-    guilds: Guilds;
 }

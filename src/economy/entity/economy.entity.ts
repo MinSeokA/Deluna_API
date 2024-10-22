@@ -25,15 +25,15 @@ export class Economy {
 
     // 인벤토리
     @ManyToMany(() => Inventory, (inventory) => inventory.economy)
-    inventory: Inventory;
+    inventory: Inventory[];
 
     // 직업
     @ManyToMany(() => Jobs, (job) => job.economy)
-    job: Jobs;
+    job: Jobs[];
 
     // 상점
     @ManyToMany(() => Shop, (shop) => shop.economy)
-    shop: Shop;
+    shop: Shop[];
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

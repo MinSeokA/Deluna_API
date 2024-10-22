@@ -9,10 +9,8 @@ export class Inventory {
     @Column()
     userId: string;
 
-    @Column({
-        default: []
-    })
-    item: Array<string>;
+    @Column("simple-array")
+    item: string[];  // 배열 형태의 데이터
 
     @Column()
     amount: number;

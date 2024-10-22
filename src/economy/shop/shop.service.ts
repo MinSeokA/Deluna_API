@@ -1,27 +1,36 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Economy } from '../balance/entity/economy.entity';
+import { Economy } from '../entity/economy.entity';
 import { Repository } from 'typeorm';
 import { Guilds } from 'src/guilds/entity/guilds.entity';
 import { Result, success } from 'src/utils/result';
+import { InventoryDto } from '../dto/inventory.dto';
+import { JobsDto } from '../dto/jobs.dto';
 
 @Injectable()
 export class ShopService {
     private async getItem(itemId: string, guildId: string) {
-        return this.economyRepository.findOne(
-            {
-                where:
-                {
-                    shop:
-                    {
-                        itemId: itemId,
-                        guildId: guildId
-                    }
-                }
-            });
+        const item = await this.economyRepository.findOne({ where: { guildId, shop: { itemId } }, relations: ['shop'] });
+        return item.shop[0]
     }
     private async getBalance(userId: string, guildId: string) {
-        return this.economyRepository.findOne({ where: { userId, guildId } });
+        let user;
+
+        user = this.economyRepository.findOne({ where: { userId, guildId } });
+
+        // 유저가 존재하지 않으면 유저 생성
+        if (!user) {
+            user = this.economyRepository.create({
+                userId,
+                guildId,
+                balance: 5000,
+                inventory: InventoryDto[0],
+                job: JobsDto[0],
+            });
+            await this.economyRepository.save(user);
+        }
+
+        return user
     }
 
     constructor(
@@ -34,8 +43,8 @@ export class ShopService {
     }
 
     async isEconomyEnabled(guildId: string): Promise<boolean> {
-        const guild = await this.guildsRepository.findOne({ where: { guildId } });
-        return guild?.system.economy === true;
+        const guild = await this.guildsRepository.findOne({ where: { guildId }, relations: ['systems'] });
+        return guild?.systems[0].economy === true;
     }
 
     // 상점에서 아이템 구매
@@ -53,20 +62,20 @@ export class ShopService {
         }
 
         // 잔액이 부족하면 `잔액이 부족합니다.` 반환
-        if (user.balance < item.shop.price) {
+        if (user.balance < item.price) {
             return fail(`잔액이 부족합니다.`);
         }
 
         // 잔액 차감
-        user.balance -= item.shop.price;
+        user.balance -= item.price;
 
         // 아이템 추가
-        user.inventory.item.push(item.shop.name);
+        user.inventory[0].item.push(item.name);
 
         // 잔액과 인벤토리 업데이트
         const buyResult = await this.economyRepository.save(user);
 
-        return success(`성공적으로 ${item.shop.name}을 구매했습니다.`, buyResult);
+        return success(`성공적으로 ${item.name}을 구매했습니다.`, buyResult);
 
     }
 
@@ -86,20 +95,20 @@ export class ShopService {
         }
 
         // 인벤토리에 아이템이 없으면 `아이템을 찾을 수 없습니다.` 반환
-        if (!user.inventory.item.includes(item.shop.name)) {
+        if (!user.inventory[0].item.includes(item.name)) {
             return fail(`아이템을 찾을 수 없습니다.`);
         }
 
         // 잔액 추가
-        user.balance += item.shop.price;
+        user.balance += item.price;
 
         // 아이템 삭제
-        user.inventory.item = user.inventory.item.filter((inventoryItem) => inventoryItem !== item.shop.name);
+        user.inventory[0].item = user.inventory[0].item.filter((inventoryItem) => inventoryItem !== item.name);
 
         // 잔액과 인벤토리 업데이트
         const sellResult = await this.economyRepository.save(user);
 
-        return success(`성공적으로 ${item.shop.name}을 판매했습니다.`, sellResult);
+        return success(`성공적으로 ${item.name}을 판매했습니다.`, sellResult);
     }
 
     // 상점에서 아이템 목록 가져오기
@@ -108,7 +117,7 @@ export class ShopService {
             return;
         }
 
-        const items = await this.economyRepository.find({ where: { shop: { guildId } } });
+        const items = await this.economyRepository.find({ where: { guildId } });
 
         return success('성공적으로 상점 아이템 목록을 가져왔습니다.', items);
     }

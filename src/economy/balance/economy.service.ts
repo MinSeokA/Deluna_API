@@ -1,9 +1,11 @@
 import { Injectable } from '@nestjs/common';
 import { InjectRepository } from '@nestjs/typeorm';
-import { Economy } from './entity/economy.entity';
-import { In, Repository } from 'typeorm';
+import { Economy } from '../entity/economy.entity';
+import { Repository } from 'typeorm';
 import { Guilds } from 'src/guilds/entity/guilds.entity';
-import { Result, success } from 'src/utils/result';
+import { Result, success, fail } from 'src/utils/result';
+import { JobsDto } from '../dto/jobs.dto';
+import { InventoryDto } from '../dto/inventory.dto';
 
 @Injectable()
 export class EconomyService {
@@ -16,17 +18,29 @@ export class EconomyService {
     ) {}
 
     private async isEconomyEnabled(guildId: string): Promise<boolean> {
-        const guild = await this.guildsRepository.findOne({ where: { guildId } });
-        return guild?.system.economy === true;
+        const guild = await this.guildsRepository.findOne({ where: { guildId }, relations: ['systems'] });
+
+        return guild?.systems[0].economy === true;
     }
 
-    async getBalance(userId: string, guildId: string): Promise<Result<number>> {
+    async getBalance(userId: string, guildId: string): Promise<Result<Economy>> {
+        // 이코노미 시스템이 활성화되어 있는지 확인
         if (!await this.isEconomyEnabled(guildId)) {
             return fail('길드에서 이코노미 시스템을 사용하지 않습니다.');
         }
-
-        const economy = await this.economyRepository.findOne({ where: { userId, guildId } });
-        return success('성공적으로 잔액을 가져왔습니다.', economy?.balance ?? 0);
+    
+        // 유저가 존재하는지 확인
+        const exuser = await this.economyRepository.findOne({ where: { userId, guildId } });
+    
+        // 유저가 존재하지 않으면 유저 생성
+        if (!exuser) {
+            const user = this.economyRepository.create({ userId, guildId, balance: 0, bank: 5000}); // 적절한 초기 값을 설정
+            await this.economyRepository.save(user);
+    
+            return success('성공적으로 잔액을 생성했습니다.', user);
+        }
+    
+        return success('성공적으로 잔액을 가져왔습니다.', exuser);
     }
 
     // 이체 기능

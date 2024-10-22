@@ -19,8 +19,8 @@ export class KickService {
         const { moderatorId, userId, guildId, reason } = kickDto;
 
         // 해당 길드가 킥 기능을 지원하는지 확인
-        const guild = await this.guildsRepository.findOne({ where: { guildId } });
-        if (!guild || guild.system.moderationKick === false) {
+        const guild = await this.guildsRepository.findOne({ where: { guildId }, relations: ['systems'] });
+        if (!guild || guild.systems[0].moderationKick === false) {
             return fail('길드에서 추방 기능을 사용하지 않습니다.');
         }
 

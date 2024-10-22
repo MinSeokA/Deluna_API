@@ -6,17 +6,17 @@ import { Guilds } from './guilds.entity';
 export class LogChannels {
     // 채널 관련 개별 컬럼으로 변경
     @Column({ nullable: true }) // welcome 채널
-    welcomeChannel: string | null;
+    welcomeChannel: number | null;
 
     @Column({ nullable: true }) // leave 채널
-    leaveChannel: string | null;
+    leaveChannel: number | null;
 
     @Column({ nullable: true }) // logs 채널
-    logsChannel: string | null;
+    logsChannel: number | null;
 
     @PrimaryGeneratedColumn()
     id: number;
 
-    @ManyToOne(() => Guilds, (guilds) => guilds.system)
+    @ManyToOne(() => Guilds, (guilds) => guilds.channels)
     guilds: Guilds;
 }

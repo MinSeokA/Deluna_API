@@ -7,9 +7,6 @@ export class Shop {
     id: number;
 
     @Column()
-    guildId: string;
-    
-    @Column()
     itemId: string;
 
     @Column()

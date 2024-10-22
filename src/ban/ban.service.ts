@@ -7,16 +7,22 @@ import { Result, success, fail } from 'src/utils/result';
 
 @Injectable()
 export class BanService {
+  private async getGuild(guildId: string) {
+    const guilds = this.guildsRepository.findOne({ where: { guildId }, relations: ['systems'] });
+    return guilds;
+  }
+
   constructor(
     @InjectRepository(BlockedUser)
     private readonly blockedUsersRepository: Repository<BlockedUser>,
     @InjectRepository(Guilds)
     private readonly guildsRepository: Repository<Guilds>,
-  ) {}
+  ) {
+  }
 
   private async isModerationBanEnabled(guildId: string): Promise<boolean> {
-    const guild = await this.guildsRepository.findOne({ where: { guildId } });
-    return guild?.system.moderationBan === true;
+    const guild = (await this.getGuild(guildId)).systems[0];
+    return guild.moderationBan === true;
   }
 
   async blockUser(

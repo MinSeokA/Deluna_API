@@ -1,9 +1,8 @@
 import { Body, Controller, Get, Param, Post } from '@nestjs/common';
 import { GuildsService } from './guilds.service';
 import { Guilds } from './entity/guilds.entity';
-import { GuildsDto } from './dto/create-guilds.dto';
+import { GuildsDto } from './dto/Guilds.dto';
 import { Result } from 'src/utils/result';
-import { UpdateGuildsDto } from './dto/update-guilds.dto';
 
 @Controller('guilds')
 export class GuildsController {
@@ -26,7 +25,11 @@ export class GuildsController {
   }
 
   @Post('update')
-  async updateGuild(@Body() updateGuildDto: UpdateGuildsDto): Promise<Result<any>> {
-    return await this.guildsService.updateGuildSystem(updateGuildDto);
+  async updateGuild(@Body() body: {
+    guildId: string;
+    updateData: Partial<GuildsDto>; // 업데이트할 데이터
+  }): Promise<Result<Guilds>> {
+    return this.guildsService.update(body.guildId, body.updateData);
   }
+  
 }

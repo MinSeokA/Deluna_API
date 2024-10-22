@@ -29,6 +29,7 @@ export class PlaylistController {
   async addSongToPlaylist(
     @Body() body: { playlistName: string, song: Song }
   ): Promise<any> {
+    console.log(body);
     return this.playlistService.addSongToPlaylist(body.playlistName, body.song);
   }
 

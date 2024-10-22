@@ -8,6 +8,12 @@ export class Song {
 
     @Column({ type: 'varchar' }) // songId를 문자열로 정의
     songId: string;
+
+    @Column()
+    title: string;
+
+    @Column()
+    duration: string;
   
     @Column()
     url: string;

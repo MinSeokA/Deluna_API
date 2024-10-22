@@ -8,7 +8,7 @@ export class Guilds {
   @PrimaryGeneratedColumn()
   id: number;
 
-  @Column({ unique: true }) // guildId는 유일해야 하므로 추가
+  @Column({ unique: true })
   guildId: string;
 
   @Column({ default: '!' }) // 기본 프리픽스 설정
@@ -17,17 +17,14 @@ export class Guilds {
   @Column()
   ownerId: string;
 
-  // system.entity.ts와 연결
   @OneToMany(() => System, (system) => system.guilds)
-  system: System;
+  systems: System[];
 
-  // logging.entity.ts와 연결
-  @OneToMany(() => SystemLogs, (systemLogs) => systemLogs.guilds)
-  systemLogs: SystemLogs;
+  @OneToMany(() => SystemLogs, (log) => log.guilds)
+  systemLogs: SystemLogs[];
 
-  // channels.entity.ts와 연결
-  @OneToMany(() => LogChannels, (logChannels) => logChannels.guilds)
-  channels: LogChannels;
+  @OneToMany(() => LogChannels, (channel) => channel.guilds)
+  channels: LogChannels[];
 
   @Column({ default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
