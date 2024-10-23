@@ -13,14 +13,18 @@ export class ShopService {
         const item = await this.economyRepository.findOne({ where: { guildId, shop: { itemId } }, relations: ['shop'] });
         return item.shop[0]
     }
-    private async getBalance(userId: string, guildId: string) {
-        let user;
 
-        user = this.economyRepository.findOne({ where: { userId, guildId } });
+    private async getGuild(guildId: string) {
+        const guild = await this.guildsRepository.findOne({ where: { guildId }, relations: ["systems"] })
+
+        return guild;
+    }
+    private async getUser(userId: string, guildId: string): Promise<Economy> {
+        const user = this.economyRepository.findOne({ where: { userId, guildId } });
 
         // 유저가 존재하지 않으면 유저 생성
         if (!user) {
-            user = this.economyRepository.create({
+            const user = this.economyRepository.create({
                 userId,
                 guildId,
                 balance: 5000,
@@ -42,10 +46,10 @@ export class ShopService {
     ) {
     }
 
-    async isEconomyEnabled(guildId: string): Promise<boolean> {
-        const guild = await this.guildsRepository.findOne({ where: { guildId }, relations: ['systems'] });
-        return guild?.systems[0].economy === true;
-    }
+    private async isEconomyEnabled(guildId: string): Promise<boolean> {
+        const guild = (await this.getGuild(guildId)).systems[0];
+        return guild.economy === true;
+      }
 
     // 상점에서 아이템 구매
     async buyItem(userId: string, guildId: string, itemId: string): Promise<Result<Economy>> {
@@ -55,8 +59,9 @@ export class ShopService {
 
         // 아이템 id로 아이템 정보 가져오기
         const item = await this.getItem(itemId, guildId);
-        const user = await this.getBalance(userId, guildId);
+        const user = await this.getUser(userId, guildId);
         // 아이템이 존재하지 않으면 `아이템을 찾을 수 없습니다.` 반환
+        
         if (!item) {
             return fail(`아이템을 찾을 수 없습니다.`);
         }
@@ -87,7 +92,7 @@ export class ShopService {
 
         // 아이템 id로 아이템 정보 가져오기
         const item = await this.getItem(itemId, guildId);
-        const user = await this.getBalance(userId, guildId);
+        const user = await this.getUser(userId, guildId);
 
         // 아이템이 존재하지 않으면 `아이템을 찾을 수 없습니다.` 반환
         if (!item) {
