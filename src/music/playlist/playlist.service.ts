@@ -3,7 +3,7 @@ import { InjectRepository } from '@nestjs/typeorm';
 import { Playlist } from './entity/playlist.entity';
 import { Song } from './entity/song.entity';
 import { Repository } from 'typeorm';
-import { Result, success } from 'src/utils/result';
+import { Result, success, fail } from 'src/utils/result';
 
 
 @Injectable()
@@ -16,15 +16,26 @@ export class PlaylistService {
   ) {}
 
   async createPlaylist(userId: string, name: string): Promise<Result<Playlist>> {
+    // 플레이리스트 이름 중복 확인
+    const existingPlaylist = await this.playlistRepository.findOne({ where: { userId, name } });
+    if (existingPlaylist) {
+      return fail('이미 존재하는 플레이리스트 이름입니다.');
+    }
+
     const playlist = this.playlistRepository.create({ userId, name });
     return success('플레이리스트를 성공적으로 생성했습니다.', await this.playlistRepository.save(playlist));
 }
 
   async getPlaylists(userId: string): Promise<Result<Playlist[]>> {
+    
     const playlist = await this.playlistRepository.find({
       where: { userId: userId }, // 조건에 맞게 사용자의 플레이리스트 조회
       relations: ['songs'], // 'songs' 필드를 포함하여 로드
     });
+
+    if (!playlist || playlist.length === 0) {
+      return fail('플레이리스트를 찾을 수 없습니다.');
+    }
     return success('플레이리스트 목록을 성공적으로 가져왔습니다.', playlist); 
   }
 
