@@ -10,6 +10,7 @@ import { WarnModule } from './warn/warn.module';
 import { PlaylistModule } from './music/playlist/playlist.module';
 import { EconomyModule } from './economy/balance/economy.module';
 import { ShopModule } from './economy/shop/shop.module';
+import { LoggingModule } from './logging/logging.module';
 
 @Module({
   imports: [
@@ -17,8 +18,8 @@ import { ShopModule } from './economy/shop/shop.module';
     BanModule,
     TypeOrmModule.forRoot({
       type: 'postgres',
-      host: 'localhost', // 데이터베이스 호스트
-      port: 5433, // 데이터베이스 포트
+      host: '61.78.89.183', // 데이터베이스 호스트
+      port: 5432, // 데이터베이스 포트
       username: 'postgres', // 데이터베이스 사용자 이름
       password: 'root', // 데이터베이스 비밀번호
       database: 'deluna', // 데이터베이스 이름
@@ -31,6 +32,7 @@ import { ShopModule } from './economy/shop/shop.module';
   PlaylistModule,
   EconomyModule,
   ShopModule,
+  LoggingModule,
   ],
   controllers: [AppController],
   providers: [AppService],

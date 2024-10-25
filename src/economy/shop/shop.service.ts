@@ -6,12 +6,14 @@ import { Guilds } from 'src/guilds/entity/guilds.entity';
 import { Result, success } from 'src/utils/result';
 import { InventoryDto } from '../dto/inventory.dto';
 import { JobsDto } from '../dto/jobs.dto';
+import { Item } from '../entity/item.entity';
+import { Shop } from '../entity/shop.entity';
 
 @Injectable()
 export class ShopService {
     private async getItem(itemId: string, guildId: string) {
-        const item = await this.economyRepository.findOne({ where: { guildId, shop: { itemId } }, relations: ['shop'] });
-        return item.shop[0]
+        const item = await this.economyRepository.findOne({ where: { guildId, shop: { items: { itemId } } }, relations: ['shop', 'items'] });
+        return item.shop.items.find((item) => item.itemId === itemId);
     }
 
     private async getGuild(guildId: string) {
@@ -42,6 +44,8 @@ export class ShopService {
         private readonly economyRepository: Repository<Economy>,
         @InjectRepository(Guilds)
         private readonly guildsRepository: Repository<Guilds>,
+        @InjectRepository(Shop)
+        private readonly shopRepository: Repository<Shop>
 
     ) {
     }
@@ -127,19 +131,30 @@ export class ShopService {
         return success('성공적으로 상점 아이템 목록을 가져왔습니다.', items);
     }
 
-    // 상점에서 아이템 추가
-    async addShopItem(guildId: string, item: Economy): Promise<Result<Economy>> {
+    async addShopItem(guildId: string, itemData: Item): Promise<Result<Economy>> {
         if (!await this.isEconomyEnabled(guildId)) {
             return;
         }
-
-        const newItem = this.economyRepository.create(item);
-
-        const addItem = await this.economyRepository.save(newItem);
-
-        return success('성공적으로 상점 아이템을 추가했습니다.', addItem);
+    
+        const economy = await this.economyRepository.findOne({ where: { guildId }, relations: ['shop'] });
+    
+        if (!economy) {
+            const newShop = this.shopRepository.create({ items: [itemData] });
+            const newEconomy = this.economyRepository.create({ 
+                guildId, 
+                shop: newShop 
+            });
+            const savedEconomy = await this.economyRepository.save(newEconomy);
+            return success('성공적으로 아이템을 상점에 추가했습니다.', savedEconomy);
+        } else {
+            economy.shop = economy.shop || this.shopRepository.create();
+            economy.shop.items.push(itemData);
+            await this.shopRepository.save(economy.shop); // 상점 업데이트
+            const updatedEconomy = await this.economyRepository.save(economy);
+            return success('성공적으로 아이템을 상점에 추가했습니다.', updatedEconomy);
+        }
     }
-
+    
     // 상점에서 아이템 삭제
     async deleteShopItem(guildId: string, itemId: string): Promise<Result<void>> {
         if (!await this.isEconomyEnabled(guildId)) {
@@ -152,28 +167,35 @@ export class ShopService {
             return fail('아이템을 찾을 수 없습니다.');
         }
 
-        await this.economyRepository.delete(item);
+        await this.economyRepository.delete({
+            guildId: guildId,
+            shop: { items: { itemId: itemId } }
+        })
 
         return success('성공적으로 상점 아이템을 삭제했습니다.');
     }
 
     // 상점에서 아이템 수정
-    async updateShopItem(guildId: string, itemId: string, item: Economy): Promise<Result<Economy>> {
+    async updateShopItem(guildId: string, itemId: string, updatedData: Partial<Item>): Promise<Result<Economy>> {
         if (!await this.isEconomyEnabled(guildId)) {
             return;
         }
-
+    
         const existingItem = await this.getItem(itemId, guildId);
-
+    
         if (!existingItem) {
             return fail('아이템을 찾을 수 없습니다.');
         }
-
-        const updatedItem = await this.economyRepository.save({ ...existingItem, ...item });
-
-        return success('성공적으로 상점 아이템을 수정했습니다.', updatedItem);
-    }
-
-    // 상점에서 아이템 구매 기록 가져오기
-
+    
+        // 수정할 데이터를 기존 아이템에 적용
+        Object.assign(existingItem, updatedData);
+    
+        // 수정된 아이템 저장
+        await this.economyRepository.save(existingItem);
+    
+        // 해당 guildId의 Economy 정보를 다시 가져옵니다.
+        const updatedEconomy = await this.economyRepository.findOne({ where: { guildId }, relations: ['shop'] });
+    
+        return success('성공적으로 상점 아이템을 수정했습니다.', updatedEconomy);
+    }    
 }

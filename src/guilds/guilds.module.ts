@@ -4,12 +4,11 @@ import { GuildsService } from './guilds.service';
 import { TypeOrmModule } from '@nestjs/typeorm';
 import { Guilds } from './entity/guilds.entity';
 import { System } from './entity/system.entity';
-import { SystemLogs } from './entity/logging.entity';
 import { LogChannels } from './entity/channels.entity';
 import { Economy } from 'src/economy/entity/economy.entity';
 
 @Module({
-  imports: [TypeOrmModule.forFeature([Guilds, System, SystemLogs, LogChannels, Economy])],
+  imports: [TypeOrmModule.forFeature([Guilds, System, LogChannels, Economy])],
   controllers: [GuildsController],
   providers: [GuildsService]
 })

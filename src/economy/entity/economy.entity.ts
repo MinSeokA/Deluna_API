@@ -1,4 +1,4 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, OneToOne, JoinColumn, ManyToOne } from 'typeorm';
 import { Shop } from './shop.entity';
 import { Jobs } from './jobs.entity';
 import { Inventory } from './inventory.entity';
@@ -24,16 +24,17 @@ export class Economy {
     bank: number;
 
     // 인벤토리
-    @ManyToMany(() => Inventory, (inventory) => inventory.economy)
+    @ManyToOne(() => Inventory, (inventory) => inventory.economy)
     inventory: Inventory[];
 
     // 직업
-    @ManyToMany(() => Jobs, (job) => job.economy)
+    @ManyToOne(() => Jobs, (job) => job.economy)
     job: Jobs[];
 
     // 상점
-    @ManyToMany(() => Shop, (shop) => shop.economy)
-    shop: Shop[];
+    @OneToOne(() => Shop)
+    @JoinColumn()
+    shop: Shop;
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;

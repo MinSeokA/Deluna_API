@@ -1,5 +1,6 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToMany, ManyToOne } from 'typeorm';
 import { Economy } from './economy.entity';
+import { Item } from './item.entity';
 
 @Entity('shop')
 export class Shop {
@@ -7,30 +8,13 @@ export class Shop {
     id: number;
 
     @Column()
-    itemId: string;
-
-    @Column()
     name: string;
 
-    @Column()
-    price: number;
+    // items 연결
+    @ManyToOne(() => Item, (item) => item.shop)
+    items: Item[];
 
-    @Column()
-    description: string;
-
-    @Column()
-    image: string;
-
-    @Column()
-    type: string;
-
-    @Column()
-    stock: number;
-
-    @Column()
-    isLimited: boolean;
-
-    @ManyToMany(() => Economy, (economy) => economy.shop)
+    @ManyToOne(() => Economy, (economy) => economy.shop)
     economy: Economy;
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })

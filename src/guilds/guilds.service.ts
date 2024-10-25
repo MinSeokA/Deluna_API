@@ -6,7 +6,6 @@ import { GuildsDto } from './dto/Guilds.dto'; // DTO 경로
 import { success, fail, Result } from '../utils/result';
 import { SystemDto } from './dto/System.dto';
 import { System } from './entity/system.entity';
-import { SystemLogs } from './entity/logging.entity';
 import { LogChannels } from './entity/channels.entity';
 import { Economy } from 'src/economy/entity/economy.entity';
 
@@ -18,9 +17,6 @@ export class GuildsService {
 
     @InjectRepository(System)
     private readonly systemsRepository: Repository<System>,
-
-    @InjectRepository(SystemLogs)
-    private readonly systemLogsRepository: Repository<SystemLogs>,
 
     @InjectRepository(LogChannels)
     private readonly channelsRepository: Repository<LogChannels>,
@@ -60,17 +56,6 @@ export class GuildsService {
       });
 
       await this.systemsRepository.save(newSystem);
-
-      // 시스템 로그 생성
-      const newSystemLog = this.systemLogsRepository.create({
-        guilds: newGuild, // 새로운 길드와 연결
-        warn: false,
-        kick: false,
-        ban: false,
-        economy: false,
-      });
-
-      await this.systemLogsRepository.save(newSystemLog);
 
       // 채널 정보 생성
       const newChannel = this.channelsRepository.create({
@@ -141,39 +126,12 @@ export class GuildsService {
         case 'welcome':
           system.welcome = updateData.system.status;
           break;
-        case 'logging':
-          system.logging = updateData.system.status;
-          break;
         default:
           return fail('올바르지 않은 시스템 기능입니다.');
       }
 
       // 변경된 데이터 저장
       await this.systemsRepository.save(system);
-    }
-
-    if (updateData?.log) {
-      const systemLog = guild.systemLogs[0];
-
-      switch (updateData.log.feature) {
-        case 'warn':
-          systemLog.warn = updateData.log.status;
-          break;
-        case 'kick':
-          systemLog.kick = updateData.log.status;
-          break;
-        case 'ban':
-          systemLog.ban = updateData.log.status;
-          break;
-        case 'economy':
-          systemLog.economy = updateData.log.status;
-          break;
-        default:
-          return fail('올바르지 않은 로깅 기능입니다.');
-      }
-
-      // 변경된 데이터 저장
-      await this.systemLogsRepository.save(systemLog);
     }
 
     if (updateData?.channel) {

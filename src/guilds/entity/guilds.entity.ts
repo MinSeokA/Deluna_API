@@ -1,6 +1,5 @@
 import { Entity, Column, PrimaryGeneratedColumn, OneToMany } from 'typeorm';
 import { System } from './system.entity';
-import { SystemLogs } from './logging.entity';
 import { LogChannels } from './channels.entity';
 
 @Entity('guilds')
@@ -19,9 +18,6 @@ export class Guilds {
 
   @OneToMany(() => System, (system) => system.guilds)
   systems: System[];
-
-  @OneToMany(() => SystemLogs, (log) => log.guilds)
-  systemLogs: SystemLogs[];
 
   @OneToMany(() => LogChannels, (channel) => channel.guilds)
   channels: LogChannels[];
