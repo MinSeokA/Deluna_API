@@ -104,4 +104,21 @@ export class EconomyController {
     async resetAll(): Promise<any> {
         return this.economyService.resetAllEconomies();
     }
+
+    // 출석체크
+    @Get('checkIn/:guildId/:userId')
+    async checkIn(
+        @Param('guildId') guildId: string,
+        @Param('userId') userId: string
+    ): Promise<any> {
+        return this.economyService.checkIn(userId, guildId);
+    }
+
+    // 출석체크 보상 설정
+    @Post('setCheckInReward')
+    async setCheckInReward(
+        @Body() body: { guildId: string, amount: number }
+    ): Promise<any> {
+        return this.economyService.setCheckInReward(body.guildId, body.amount);
+    }
 }

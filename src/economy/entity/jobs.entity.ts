@@ -1,5 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToMany } from 'typeorm';
-import { Economy } from './economy.entity';
+import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToMany } from 'typeorm';
+import { EconomyGuild } from './economy-guild.entity';
 
 @Entity('jobs')
 export class Jobs {
@@ -21,8 +21,9 @@ export class Jobs {
     @Column()
     experience: number;
 
-    @ManyToMany(() => Economy, (economy) => economy.shop)
-    economy: Economy;
+    // 여러 EconomyGuild가 같은 직업을 가질 수 있음 (Many-to-One)
+    @OneToMany(() => EconomyGuild, (economyGuild) => economyGuild.job)
+    economyGuild: EconomyGuild;
 
     @Column()
     isLimited: boolean;
@@ -38,6 +39,4 @@ export class Jobs {
 
     @Column({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
-} 
-
-
+}

@@ -1,11 +1,12 @@
-export class ShopDto {
-    id: number;
-    item: string;
-    price: number;
-    description: string;
-    image: string;
-    type: string;
-    stock: number;
-    isLimited: boolean;
-    createdAt: Date;
+class ShopDto {
+  id: number;
+  name: string;
+  items: ItemDto[];
+}
+
+class ItemDto {
+  itemId: string;
+  name: string;
+  price: number;
+  stock: number;
 }

@@ -8,6 +8,9 @@ import { SystemDto } from './dto/System.dto';
 import { System } from './entity/system.entity';
 import { LogChannels } from './entity/channels.entity';
 import { Economy } from 'src/economy/entity/economy.entity';
+import { EconomyGuild } from 'src/economy/entity/economy-guild.entity';
+import { Shop } from 'src/economy/entity/shop.entity';
+import { Jobs } from 'src/economy/entity/jobs.entity';
 
 @Injectable()
 export class GuildsService {
@@ -20,9 +23,9 @@ export class GuildsService {
 
     @InjectRepository(LogChannels)
     private readonly channelsRepository: Repository<LogChannels>,
-
-    @InjectRepository(Economy)
-    private readonly economyRepository: Repository<Economy>,
+    
+    @InjectRepository(EconomyGuild)
+    private readonly economyGuildRepository: Repository<EconomyGuild>,
   ) {}
 
   async create(guild: GuildsDto): Promise<Result<Guilds>> {
@@ -67,6 +70,14 @@ export class GuildsService {
 
       await this.channelsRepository.save(newChannel);
 
+      // 경제 시스템 정보 생성
+      const newEconomyGuild = this.economyGuildRepository.create({
+        guildId: guild.guildId,
+        checkInReward: 0,
+      });
+
+      await this.economyGuildRepository.save(newEconomyGuild);
+
       console.log(newGuild);
       return success('새 길드를 성공적으로 생성했습니다.', newGuild);
     } catch (error) {
@@ -95,7 +106,7 @@ export class GuildsService {
     // 길드 찾기
     const guild = await this.guildsRepository.findOne({
       where: { guildId: guildId },
-      relations: ['systems', 'systemLogs', 'channels'],
+      relations: ['systems', 'channels'],
     });
     
     if (!guild) {

@@ -16,15 +16,9 @@ export class Item {
     price: number;
 
     @Column()
-    description: string;
-
-    @Column()
     stock: number;
 
-    @Column()
-    image: string;
-
-    @Column()
+    @Column({ default: () => 'CURRENT_TIMESTAMP' })
     createdAt: Date;
 
     // Shop 연결
