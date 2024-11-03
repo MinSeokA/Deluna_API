@@ -36,14 +36,13 @@ export class EconomyService {
 
     // 유저가 존재하는지 확인
     const exuser = await this.economyRepository.findOne({
-      where: { userId, guildId },
+      where: { userId },
     });
 
     // 유저가 존재하지 않으면 유저 생성
     if (!exuser) {
       const user = this.economyRepository.create({
         userId,
-        guildId,
         balance: 0,
         bank: 5000,
       }); // 적절한 초기 값을 설정
@@ -67,10 +66,10 @@ export class EconomyService {
     }
 
     const sender = await this.economyRepository.findOne({
-      where: { userId: senderId, guildId },
+      where: { userId: senderId },
     });
     const receiver = await this.economyRepository.findOne({
-      where: { userId: receiverId, guildId },
+      where: { userId: receiverId },
     });
 
     if (!sender || !receiver) {
@@ -99,7 +98,7 @@ export class EconomyService {
     }
 
     const economy = await this.economyRepository.findOne({
-      where: { userId, guildId },
+      where: { userId },
     });
 
     if (!economy) {
@@ -129,7 +128,7 @@ export class EconomyService {
     }
 
     const economy = await this.economyRepository.findOne({
-      where: { userId, guildId },
+      where: { userId },
     });
 
     if (!economy) {
@@ -142,7 +141,8 @@ export class EconomyService {
 
     await this.economyRepository.save({
       ...economy,
-      balance: economy.balance + amount,
+      balance: economy.balance -= amount,
+      bank: economy.bank += amount,
     });
 
     return success('성공적으로 입금했습니다.');
@@ -157,21 +157,11 @@ export class EconomyService {
     }
 
     const topBalances = await this.economyRepository.find({
-      where: { guildId },
       order: { balance: 'DESC' },
       take: limit,
     });
 
     return success('성공적으로 상위 잔액을 가져왔습니다.', topBalances);
-  }
-
-  async getBalances(guildId: string): Promise<Result<Economy[]>> {
-    if (!(await this.isEconomyEnabled(guildId))) {
-      return fail('길드에서 이코노미 시스템을 사용하지 않습니다.');
-    }
-
-    const balances = await this.economyRepository.find({ where: { guildId } });
-    return success('성공적으로 잔액 목록을 가져왔습니다.', balances);
   }
 
   async setBalance(
@@ -200,15 +190,6 @@ export class EconomyService {
     return success('성공적으로 은행 잔액을 설정했습니다.');
   }
 
-  async resetEconomy(guildId: string): Promise<Result<void>> {
-    if (!(await this.isEconomyEnabled(guildId))) {
-      return fail('길드에서 이코노미 시스템을 사용하지 않습니다.');
-    }
-
-    await this.economyRepository.delete({ guildId });
-    return success('성공적으로 이코노미를 초기화했습니다.');
-  }
-
   async resetAllEconomies(): Promise<Result<void>> {
     await this.economyRepository.delete({});
     return success('성공적으로 모든 이코노미를 초기화했습니다.');
@@ -234,7 +215,7 @@ async checkIn(userId: string, guildId: string): Promise<Result<Economy>> {
     }
 
     const economy = await this.economyRepository.findOne({
-        where: { userId, guildId },
+        where: { userId },
     });
     const guild = await this.economyGuildRepository.findOne({
         where: { guildId },

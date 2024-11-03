@@ -16,14 +16,6 @@ export class EconomyController {
         return this.economyService.getBalance(userId, guildId);
     }
 
-    // 길드 사용자 잔액 조회
-    @Get('balances/:guildId')
-    async getBalances(
-        @Param('guildId') guildId: string
-    ): Promise<any> {
-        return this.economyService.getBalances(guildId);
-    }
-
     // 이체
     @Post('transfer')
     async transferBalance(
@@ -72,16 +64,6 @@ export class EconomyController {
     ): Promise<any> {
         return this.economyService.getTopBalances(guildId, limit);
     }
-
-
-    // 길드 잔액 초기화
-    @Post('resetAllBalances')
-    async resetAllBalances(
-        @Body() body: { guildId: string }
-    ): Promise<any> {
-        return this.economyService.resetEconomy(body.guildId);
-    }
-
 
     // 사용자 잔액 초기화
     @Post('setUserBalance')

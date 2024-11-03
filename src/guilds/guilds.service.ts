@@ -119,13 +119,13 @@ export class GuildsService {
       const system = guild.systems[0];
 
       switch (updateData.system.feature) {
-        case 'moderationWarn':
+        case 'warn':
           system.moderationWarn = updateData.system.status;
           break;
-        case 'moderationKick':
+        case 'kick':
           system.moderationKick = updateData.system.status;
           break;
-        case 'moderationBan':
+        case 'ban':
           system.moderationBan = updateData.system.status;
           break;
         case 'economy':

@@ -35,13 +35,12 @@ export class ShopService {
     return guild;
   }
   private async getUser(userId: string, guildId: string): Promise<Economy> {
-    const user = this.economyRepository.findOne({ where: { userId, guildId } });
+    const user = this.economyRepository.findOne({ where: { userId } });
 
     // 유저가 존재하지 않으면 유저 생성
     if (!user) {
       const user = this.economyRepository.create({
         userId,
-        guildId,
         balance: 5000,
         inventory: InventoryDto[0],
       });

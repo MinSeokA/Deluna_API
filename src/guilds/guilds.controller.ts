@@ -24,12 +24,13 @@ export class GuildsController {
     return this.guildsService.getGuilds();
   }
 
-  @Post('update')
-  async updateGuild(@Body() body: {
-    guildId: string;
+  @Post(':guilId/update')
+  async updateGuild(
+    @Param("guildId") guildId: string,
+    @Body() body: {
     updateData: Partial<GuildsDto>; // 업데이트할 데이터
   }): Promise<Result<Guilds>> {
-    return this.guildsService.update(body.guildId, body.updateData);
+    return this.guildsService.update(guildId, body.updateData);
   }
   
 }

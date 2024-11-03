@@ -13,9 +13,6 @@ export class Economy {
     userId: string;
 
     @Column()
-    guildId: string;
-
-    @Column()
     balance: number;
 
     @Column({

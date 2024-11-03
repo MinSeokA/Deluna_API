@@ -1,16 +1,5 @@
-import { Entity, Column, PrimaryGeneratedColumn, ManyToOne, OneToOne, OneToMany } from 'typeorm';
-import { Deposit } from './economy/deposit.entity';
-import { Withdraw } from './economy/withdraw.entity';
-import { Transfer } from './economy/transfer.entity';
-import { LogShops } from './economy/items.entity';
-import { LogGuildsChannel } from './guilds/channel.entity';
-import { EconomyLog } from './economy/economy-log.entity';
-import { ModerationLog } from './moderaction/moderation-log.entity';
-import { Logban } from './moderaction/ban.entity';
-import { LogKick } from './moderaction/kick.entity';
-import { LogWarn } from './moderaction/warn.entity';
+import { Entity, PrimaryGeneratedColumn, Column } from 'typeorm';
 
-// 로그 설정
 @Entity('logging')
 export class Logging {
   @PrimaryGeneratedColumn()
@@ -19,32 +8,35 @@ export class Logging {
   @Column()
   guildId: string;
 
-  @Column()
+  @Column({ type: 'timestamp', default: () => 'CURRENT_TIMESTAMP' })
   createdAt: Date;
 
-  // logging channel and boolean
-  @OneToOne(() => LogGuildsChannel, (channel) => channel.logging)
-  channel: LogGuildsChannel;
+  @Column({ type: 'jsonb', nullable: true })
+  settings: {
+    loggingEnabled?: boolean;
+    loggingChannelId?: string;
+    economyLogs?: {
+      isEnabled?: boolean;
+      channelId?: number;
+    };
+    moderationLogs?: {
+      isEnabled?: boolean;
+      channelId?: number;
+    };
+  };
 
-  @ManyToOne(() => Deposit, (deposit) => deposit.logging)
-  deposit: Deposit[];
+  @Column({ type: 'jsonb', nullable: true })
+  economyLogs: {
+    deposits?: Array<{ logType: "입금"; userId: string; amount: number; createdAt: Date; }>;
+    withdrawals?: Array<{ logType: "출금"; userId: string; amount: number; createdAt: Date; }>;
+    transfers?: Array<{ logType: "이체"; fromUserId: string; toUserId: string; amount: number; createdAt: Date; }>;
+    shops?: Array<{ logType: "상점"; itemId: string; name: string; price: number; buyUserId: string; createdAt: Date; }>;
+  };
 
-  @ManyToOne(() => Withdraw, (withdraw) => withdraw.logging)
-  withdraw: Withdraw[];
-
-  @ManyToOne(() => Transfer, (transfer) => transfer.logging)
-  transfer: Transfer[];
-
-  @ManyToOne(() => LogShops, (shops) => shops.logging)
-  shops: LogShops[];
-
-  @ManyToOne(() => Logban, (ban) => ban.logging)
-  ban: Logban[];
-
-  @ManyToOne(() => LogKick, (kick) => kick.logging)
-  kick: Logban[];
-
-  @ManyToOne(() => LogWarn, (warn) => warn.logging)
-  warn: Logban[];
-
+  @Column({ type: 'jsonb', nullable: true })
+  moderationLogs: {
+    bans?: Array<{ logType: "차단"; byUserId: string; userId: string; reason: string; createdAt: Date; }>;
+    kicks?: Array<{ logType: "추방"; byUserId: string; userId: string; reason: string; createdAt: Date; }>;
+    warns?: Array<{ logType: "경고"; byUserId: string; userId: string; warnId: string; reason: string; createdAt: Date; }>;
+  };
 }

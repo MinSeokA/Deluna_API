@@ -11,6 +11,7 @@ import { PlaylistModule } from './music/playlist/playlist.module';
 import { EconomyModule } from './economy/balance/economy.module';
 import { ShopModule } from './economy/shop/shop.module';
 import { LoggingModule } from './logging/logging.module';
+import { GiveawayModule } from './giveaway/giveaway.module';
 
 @Module({
   imports: [
@@ -33,6 +34,7 @@ import { LoggingModule } from './logging/logging.module';
   EconomyModule,
   ShopModule,
   LoggingModule,
+  GiveawayModule,
   ],
   controllers: [AppController],
   providers: [AppService],
